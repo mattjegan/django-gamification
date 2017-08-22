@@ -70,6 +70,15 @@ class Progression(models.Model):
         return self.progress >= self.target
 
 
+class PointChange(models.Model):
+    """
+
+    """
+    amount = models.BigIntegerField(null=False, blank=False)
+    interface = models.ForeignKey(GamificationInterface)
+    time = models.DateTimeField(auto_created=datetime.now)
+
+
 class Category(models.Model):
     """
     
@@ -94,6 +103,8 @@ class Badge(models.Model):
     next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
 
+    points = models.BigIntegerField(null=True, blank=True)
+
     def increment(self):
         if self.progression:
             self.progression.increment()
@@ -103,12 +114,8 @@ class Badge(models.Model):
     def award(self):
         if not self.progression or self.progression.finished:
             self.acquired = True
-
-
-class PointChange(models.Model):
-    """
-    
-    """
-    amount = models.BigIntegerField(null=False, blank=False)
-    interface = models.ForeignKey(GamificationInterface)
-    time = models.DateTimeField(auto_created=datetime.now)
+            if self.points is not None:
+                PointChange.objects.create(
+                    amount=self.points,
+                    interface=self.interface
+                )

@@ -9,9 +9,9 @@
 
 **Points**
 - [x] Manually Awardable
-- [ ] Rewarded Points from Badges
+- [x] Rewarded Points from Badges
 - [ ] Rewarded Points from actions
-- [ ] Manual Setbacks
+- [x] Manual Setbacks (via negative PointChange)
 - [ ] Setbacks triggered from actions
 - [x] Log of point changes
 
