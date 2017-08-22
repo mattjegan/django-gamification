@@ -8,11 +8,12 @@
 - [x] Badge Categories
 
 **Points**
-- [ ] Manually Awardable
+- [x] Manually Awardable
 - [ ] Rewarded Points from Badges
 - [ ] Rewarded Points from actions
 - [ ] Manual Setbacks
 - [ ] Setbacks triggered from actions
+- [x] Log of point changes
 
 **Unlockables**
 - [ ] Unlockable via action

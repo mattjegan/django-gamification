@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.datetime_safe import datetime
 
 
 class GamificationInterface(models.Model):
@@ -102,3 +103,12 @@ class Badge(models.Model):
     def award(self):
         if not self.progression or self.progression.finished:
             self.acquired = True
+
+
+class PointChange(models.Model):
+    """
+    
+    """
+    amount = models.BigIntegerField(null=False, blank=False)
+    interface = models.ForeignKey(GamificationInterface)
+    time = models.DateTimeField(auto_created=datetime.now)
