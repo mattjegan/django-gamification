@@ -69,6 +69,14 @@ class Progression(models.Model):
         return self.progress >= self.target
 
 
+class Category(models.Model):
+    """
+    
+    """
+    name = models.CharField(max_length=128, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+
+
 class Badge(models.Model):
     """
 
@@ -83,6 +91,7 @@ class Badge(models.Model):
 
     progression = models.ForeignKey(Progression, null=True)
     next_badge = models.ForeignKey('self', null=True)
+    category = models.ForeignKey(Category, null=True)
 
     def increment(self):
         if self.progression:

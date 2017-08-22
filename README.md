@@ -5,7 +5,7 @@
 - [x] Instant Award
 - [x] Progressive Award
 - [x] Chained Badges
-- [ ] Badge Categories
+- [x] Badge Categories
 
 **Points**
 - [ ] Manually Awardable
