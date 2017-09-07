@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 from django.utils.datetime_safe import datetime
 
 
@@ -9,7 +10,10 @@ class GamificationInterface(models.Model):
     
     game_tracking = ForeignKey(GamificationInterface)
     """
-    pass
+
+    @property
+    def points(self):
+        return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))
 
 
 class BadgeDefinition(models.Model):
@@ -119,3 +123,67 @@ class Badge(models.Model):
                     amount=self.points,
                     interface=self.interface
                 )
+
+
+class UnlockableDefinition(models.Model):
+    """
+
+    """
+    name = models.CharField(max_length=128)
+    description = models.TextField(null=True, blank=True)
+    points_required = models.BigIntegerField(null=False, blank=False)
+
+    def save(self, *args, **kwargs):
+        """
+        We made this method expensive as it is likely to be used very rarely (creation of new types of Unlockables).
+        By doing so we save having to do expensive joins for filters that look at the unlockable name or definition.
+
+        This may be simplified in the future if users opt to
+        use Unlockable.objects.filter(unlockable_definition__name=...)
+        whereas we wanted it to be simpler syntax as the current Unlockable.objects.filter(name=...)
+
+        :param args: 
+        :param kwargs: 
+        :return: 
+        """
+
+        # If this is a new UnlockableDefinition
+        if not hasattr(self, 'pk'):
+            super(UnlockableDefinition, self).save(*args, **kwargs)
+
+            # Create Unlockables for all GamificationInterfaces
+            for interface in GamificationInterface.objects.all():
+                Unlockable.objects.create(
+                    interface=interface,
+                    name=self.name,
+                    description=self.description,
+                    points_required=self.points_required,
+                    badge_definition=self
+                )
+
+        else:
+            super(UnlockableDefinition, self).save(*args, **kwargs)
+
+            # Update all Unlockable that use this definition
+            Unlockable.objects.filter(badge_definition=self).update(
+                name=self.name,
+                description=self.description,
+                points_required=self.points_required
+            )
+
+
+class Unlockable(models.Model):
+    """
+
+    """
+    unlockable_definition = models.ForeignKey(UnlockableDefinition)
+    acquired = models.BooleanField(default=False)
+    interface = models.ForeignKey(GamificationInterface)
+
+    # These should be populated by the UnlockableDefinition that generates this
+    name = models.CharField(max_length=128)
+    points_required = models.BigIntegerField(null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
+
+
+import django_gamification.signals

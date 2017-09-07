@@ -14,8 +14,7 @@
 - [x] Log of point changes
 
 **Unlockables**
-- [ ] Unlockable via action
-- [ ] Unlockable via Points
+- [x] Unlockable via Points
 
 **Views**
 - [ ] Auto-update Badges
