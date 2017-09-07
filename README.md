@@ -1,4 +1,14 @@
 # Django Gamification
+[![PyPI version](https://badge.fury.io/py/django-gamification.svg)](https://badge.fury.io/py/django-gamification)
+
+Django Gamification aims to fill the gamification sized whole in the Django package ecosystem.
+
+## Installation
+
+```
+pip install django_gamification
+```
+
 ## Features
 
 **Badges**
