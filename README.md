@@ -10,9 +10,7 @@
 **Points**
 - [x] Manually Awardable
 - [x] Rewarded Points from Badges
-- [ ] Rewarded Points from actions
 - [x] Manual Setbacks (via negative PointChange)
-- [ ] Setbacks triggered from actions
 - [x] Log of point changes
 
 **Unlockables**
