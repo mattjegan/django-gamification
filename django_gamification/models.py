@@ -13,7 +13,7 @@ class GamificationInterface(models.Model):
 
     @property
     def points(self):
-        return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))
+        return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))['amount__sum'] or 0
 
 
 class BadgeDefinition(models.Model):
@@ -80,7 +80,7 @@ class PointChange(models.Model):
     """
     amount = models.BigIntegerField(null=False, blank=False)
     interface = models.ForeignKey(GamificationInterface)
-    time = models.DateTimeField(auto_created=datetime.now)
+    time = models.DateTimeField(auto_now_add=True)
 
 
 class Category(models.Model):
