@@ -1,5 +1,6 @@
 # Django Gamification
 [![PyPI version](https://badge.fury.io/py/django-gamification.svg)](https://badge.fury.io/py/django-gamification)
+[![Build Status](https://travis-ci.org/mattjegan/django-gamification.svg?branch=master)](https://travis-ci.org/mattjegan/django-gamification)
 
 Django Gamification aims to fill the gamification sized whole in the Django package ecosystem. In the current state, Django Gamification provides a set of models that can be used to implement gamification features in your application. These include a centralised interface for keeping track of all gamification related objects including badges, points, and unlockables.
 
