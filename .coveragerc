@@ -1,0 +1,20 @@
+[run]
+omit =
+    ./*/migrations/*.py
+    ./*/tests/*
+    ./venv/*
+    ./.venv/*
+    ./django_gamification/settings/*
+
+[report]
+fail_under = 90
+include = ./**/*.py
+omit =
+    ./*/migrations/*.py
+    ./*/tests/*
+    ./venv/*
+    ./.venv/*
+    ./django_gamification/settings/*
+show_missing = True
+skip_covered = True
+sort = Cover
