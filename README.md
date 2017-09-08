@@ -6,8 +6,25 @@ Django Gamification aims to fill the gamification sized whole in the Django pack
 
 ## Installation
 
+Download from PyPi:
 ```
 pip install django_gamification
+```
+
+And add to your `INSTALLED_APPS`:
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    .
+    .
+    .
+    'django_gamification'
+]
 ```
 
 ## Features and Examples
