@@ -125,7 +125,7 @@ class Badge(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression = models.ForeignKey(Progression, null=True)
-    next_badge = models.ForeignKey('self', null=True)
+    #next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
 
