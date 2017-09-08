@@ -37,7 +37,7 @@ class BadgeDefinition(models.Model):
         """
 
         # If this is a new BadgeDefinition
-        if not hasattr(self, 'pk'):
+        if self.pk is None:
             super(BadgeDefinition, self).save(*args, **kwargs)
 
             # Create Badges for all GamificationInterfaces
@@ -148,7 +148,7 @@ class UnlockableDefinition(models.Model):
         """
 
         # If this is a new UnlockableDefinition
-        if not hasattr(self, 'pk'):
+        if self.pk is None:
             super(UnlockableDefinition, self).save(*args, **kwargs)
 
             # Create Unlockables for all GamificationInterfaces
