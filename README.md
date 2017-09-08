@@ -27,15 +27,17 @@ class YourUserModel(models.User):
 
 ### BadgeDefinitions and Badges
 ### Creating a new badge
-By creating a new `BadgeDefinition`, Django Gamification will automatically create `Badge` instances for all your current `GamificationInterfaces` with `Badge.name`, `Badge.description`, `Badge.points` mimicking the fields on the `BadgeDefinition`.
+By creating a new `BadgeDefinition`, Django Gamification will automatically create `Badge` instances for all your current `GamificationInterfaces` with `Badge.name`, `Badge.description`, `Badge.points`, `Badge.progression` and `Badge.category` mimicking the fields on the `BadgeDefinition`.
 
 ```python
-from django_gamification.models import BadgeDefinition
+from django_gamification.models import BadgeDefinition, Category
 
 BadgeDefinition.objects.create(
     name='Badge of Awesome',
     description='You proved your awesomeness',
-    points=50
+    points=50,
+    progression_target=100,
+    category=Category.objects.create(name='Gold Badges', description='These are the top badges'),
 )
 ```
 

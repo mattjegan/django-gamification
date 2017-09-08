@@ -2,7 +2,7 @@
 from django.test import TestCase
 
 from django_gamification.models import GamificationInterface, PointChange, BadgeDefinition, Badge, Progression, \
-    UnlockableDefinition, Unlockable
+    UnlockableDefinition, Unlockable, Category
 
 
 class GamificationInterfaceTest(TestCase):
@@ -30,19 +30,41 @@ class BadgeDefinitionTest(TestCase):
 
         definition = BadgeDefinition.objects.create(
             name='mybadgedefinition',
-            description='mybadgedescription'
+            description='mybadgedescription',
+            progression_target=100,
+            category=Category.objects.create(name='category1', description='description1'),
+            points=50
         )
         self.assertEqual(Badge.objects.filter(badge_definition=definition).count(),
                          GamificationInterface.objects.all().count())
 
         for badge in Badge.objects.filter(badge_definition=definition):
             self.assertEqual(badge.name, 'mybadgedefinition')
+            self.assertEqual(badge.description, 'mybadgedescription')
+            self.assertEqual(badge.progression.target, 100)
+            self.assertEqual(badge.category.name, 'category1')
+            self.assertEqual(badge.points, 50)
 
         definition.name = 'myaltereddefinition'
+        definition.description = 'myaltereddescription'
+        definition.progression_target = 50
+        definition.category.name = 'category2'
+        definition.category.save()
+        definition.points = 75
         definition.save()
 
         for badge in Badge.objects.filter(badge_definition=definition):
             self.assertEqual(badge.name, 'myaltereddefinition')
+            self.assertEqual(badge.description, 'myaltereddescription')
+            self.assertEqual(badge.progression.target, 50)
+            self.assertEqual(badge.category.name, 'category2')
+            self.assertEqual(badge.points, 75)
+
+        definition.progression_target = None
+        definition.save()
+
+        for badge in Badge.objects.filter(badge_definition=definition):
+            self.assertEqual(badge.progression, None)
 
 
 class BadgeTest(TestCase):

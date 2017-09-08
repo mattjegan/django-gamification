@@ -16,12 +16,24 @@ class GamificationInterface(models.Model):
         return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))['amount__sum'] or 0
 
 
+class Category(models.Model):
+    """
+
+    """
+    name = models.CharField(max_length=128, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+
+
 class BadgeDefinition(models.Model):
     """
 
     """
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
+    progression_target = models.IntegerField(null=True, blank=True)
+    #next_badge = models.ForeignKey('self', null=True)
+    category = models.ForeignKey(Category, null=True)
+    points = models.BigIntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """
@@ -46,6 +58,10 @@ class BadgeDefinition(models.Model):
                     interface=interface,
                     name=self.name,
                     description=self.description,
+                    progression=Progression.objects.create(target=self.progression_target) if self.progression_target
+                    else None,
+                    category=self.category,
+                    points=self.points,
                     badge_definition=self
                 )
 
@@ -53,10 +69,24 @@ class BadgeDefinition(models.Model):
             super(BadgeDefinition, self).save(*args, **kwargs)
 
             # Update all Badges that use this definition
-            Badge.objects.filter(badge_definition=self).update(
-                name=self.name,
-                description=self.description
-            )
+            # unfortunately we need to loop rather than using .update because we need to update all the
+            # Progression objects as well
+            for badge in Badge.objects.filter(badge_definition=self):
+                badge.name = self.name
+                badge.description = self.description
+
+                if badge.progression:
+                    if self.progression_target is None:
+                        temp = badge.progression
+                        badge.progression = None
+                        temp.delete()
+                    else:
+                        badge.progression.target = self.progression_target
+                        badge.progression.save()
+
+                badge.category = self.category
+                badge.points = self.points
+                badge.save()
 
 
 class Progression(models.Model):
@@ -83,14 +113,6 @@ class PointChange(models.Model):
     time = models.DateTimeField(auto_now_add=True)
 
 
-class Category(models.Model):
-    """
-    
-    """
-    name = models.CharField(max_length=128, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-
-
 class Badge(models.Model):
     """
 
@@ -102,11 +124,9 @@ class Badge(models.Model):
     # These should be populated by the BadgeDefinition that generates this
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
-
     progression = models.ForeignKey(Progression, null=True)
     next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
-
     points = models.BigIntegerField(null=True, blank=True)
 
     def increment(self):
