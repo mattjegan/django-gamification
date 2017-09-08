@@ -158,14 +158,14 @@ class UnlockableDefinition(models.Model):
                     name=self.name,
                     description=self.description,
                     points_required=self.points_required,
-                    badge_definition=self
+                    unlockable_definition=self
                 )
 
         else:
             super(UnlockableDefinition, self).save(*args, **kwargs)
 
             # Update all Unlockable that use this definition
-            Unlockable.objects.filter(badge_definition=self).update(
+            Unlockable.objects.filter(unlockable_definition=self).update(
                 name=self.name,
                 description=self.description,
                 points_required=self.points_required
