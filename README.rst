@@ -127,8 +127,8 @@ fields on the ``UnlockableDefinition``.
     from django_gamification.models import UnlockableDefinition
 
     UnlockableDefinition.objects.create(
-        name='Some super sort after feature',
-        description='You unlocked a super sort after feature',
+        name='Some super sought after feature',
+        description='You unlocked a super sought after feature',
         points_required=100
     )
 
