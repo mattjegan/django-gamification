@@ -31,7 +31,7 @@ class BadgeDefinition(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression_target = models.IntegerField(null=True, blank=True)
-    #next_badge = models.ForeignKey('self', null=True)
+    next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
 
@@ -60,6 +60,7 @@ class BadgeDefinition(models.Model):
                     description=self.description,
                     progression=Progression.objects.create(target=self.progression_target) if self.progression_target
                     else None,
+                    next_badge=self.next_badge,
                     category=self.category,
                     points=self.points,
                     badge_definition=self
@@ -74,6 +75,7 @@ class BadgeDefinition(models.Model):
             for badge in Badge.objects.filter(badge_definition=self):
                 badge.name = self.name
                 badge.description = self.description
+                badge.next_badge = self.next_badge
 
                 if badge.progression:
                     if self.progression_target is None:
@@ -125,7 +127,7 @@ class Badge(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression = models.ForeignKey(Progression, null=True)
-    #next_badge = models.ForeignKey('self', null=True)
+    next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
 
