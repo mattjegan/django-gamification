@@ -31,7 +31,7 @@ class BadgeDefinition(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression_target = models.IntegerField(null=True, blank=True)
-    #next_badge = models.ForeignKey('self', null=True)
+    next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
 
@@ -64,6 +64,16 @@ class BadgeDefinition(models.Model):
                     points=self.points,
                     badge_definition=self
                 )
+                if self.next_badge:
+                    current_badge = Badge.objects.filter(
+                        interface=interface,
+                        badge_definition=self
+                    ).first()
+                    current_badge.next_badge = Badge.objects.filter(
+                        interface=interface,
+                        badge_definition=self.next_badge
+                    ).first()
+                    current_badge.save()
 
         else:
             super(BadgeDefinition, self).save(*args, **kwargs)
@@ -83,6 +93,11 @@ class BadgeDefinition(models.Model):
                     else:
                         badge.progression.target = self.progression_target
                         badge.progression.save()
+                if self.next_badge:
+                    badge.next_badge = Badge.objects.filter(
+                        interface=badge.interface,
+                        badge_definition=self.next_badge
+                    ).first()
 
                 badge.category = self.category
                 badge.points = self.points
@@ -125,7 +140,7 @@ class Badge(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression = models.ForeignKey(Progression, null=True)
-    #next_badge = models.ForeignKey('self', null=True)
+    next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
 
