@@ -60,11 +60,20 @@ class BadgeDefinition(models.Model):
                     description=self.description,
                     progression=Progression.objects.create(target=self.progression_target) if self.progression_target
                     else None,
-                    next_badge=self.next_badge,
                     category=self.category,
                     points=self.points,
                     badge_definition=self
                 )
+                if self.next_badge:
+                    current_badge = Badge.objects.filter(
+                        interface=interface,
+                        badge_definition=self
+                    ).first()
+                    current_badge.next_badge = Badge.objects.filter(
+                        interface=interface,
+                        badge_definition=self.next_badge
+                    ).first()
+                    current_badge.save()
 
         else:
             super(BadgeDefinition, self).save(*args, **kwargs)
@@ -75,7 +84,6 @@ class BadgeDefinition(models.Model):
             for badge in Badge.objects.filter(badge_definition=self):
                 badge.name = self.name
                 badge.description = self.description
-                badge.next_badge = self.next_badge
 
                 if badge.progression:
                     if self.progression_target is None:
@@ -85,6 +93,11 @@ class BadgeDefinition(models.Model):
                     else:
                         badge.progression.target = self.progression_target
                         badge.progression.save()
+                if self.next_badge:
+                    badge.next_badge = Badge.objects.filter(
+                        interface=badge.interface,
+                        badge_definition=self.next_badge
+                    ).first()
 
                 badge.category = self.category
                 badge.points = self.points
