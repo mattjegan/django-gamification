@@ -129,7 +129,7 @@ class PointChange(models.Model):
 
 class AcquiredBadgesManager(models.Manager):
     """
-    
+
     """
     def get_queryset(self):
         return super(AcquiredBadgesManager, self).get_queryset().filter(acquired=True, revoked=False)
@@ -144,6 +144,7 @@ class Badge(models.Model):
     revoked = models.BooleanField(default=False)
     interface = models.ForeignKey(GamificationInterface)
 
+    objects = models.Manager()
     acquired_objects = AcquiredBadgesManager()
 
     # These should be populated by the BadgeDefinition that generates this
