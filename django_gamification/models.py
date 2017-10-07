@@ -15,6 +15,29 @@ class GamificationInterface(models.Model):
     def points(self):
         return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))['amount__sum'] or 0
 
+    def reset(self):
+        """
+        Reset player's points, badges and unlockable items.
+
+        :param:
+        :return:
+        """
+
+        # Delete all points
+        self.pointchange_set.all().delete()
+
+        # All unlockable objects become not acquired
+        self.unlockable_set.all().update(acquired=False)
+
+        # All badges become not acquired and their progress is set to 0
+        for badge in self.badge_set.all():
+            progression = badge.progression
+            if progression is not None:
+                progression.progress = 0
+                progression.save()
+            badge.acquired = False
+            badge.save()
+
 
 class Category(models.Model):
     """
