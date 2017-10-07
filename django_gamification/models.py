@@ -164,8 +164,13 @@ class Badge(models.Model):
     def award(self):
         if self.revoked:
             self.revoked = False
+            if self.points is not None:
+                PointChange.objects.create(
+                    amount=self.points,
+                    interface=self.interface
+                )
 
-        if not self.progression or self.progression.finished:
+        elif not self.progression or self.progression.finished:
             self.acquired = True
             if self.points is not None:
                 PointChange.objects.create(
@@ -174,8 +179,13 @@ class Badge(models.Model):
                 )
 
     def force_revoke(self):
-        self.revoked = True
-
+        if self.acquired:
+            self.revoked = True
+            if self.points is not None:
+                PointChange.objects.create(
+                    amount=(-self.points),
+                    interface=self.interface
+                )
 
 class UnlockableDefinition(models.Model):
     """
