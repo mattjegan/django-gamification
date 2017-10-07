@@ -54,26 +54,7 @@ class BadgeDefinition(models.Model):
 
             # Create Badges for all GamificationInterfaces
             for interface in GamificationInterface.objects.all():
-                Badge.objects.create(
-                    interface=interface,
-                    name=self.name,
-                    description=self.description,
-                    progression=Progression.objects.create(target=self.progression_target) if self.progression_target
-                    else None,
-                    category=self.category,
-                    points=self.points,
-                    badge_definition=self
-                )
-                if self.next_badge:
-                    current_badge = Badge.objects.filter(
-                        interface=interface,
-                        badge_definition=self
-                    ).first()
-                    current_badge.next_badge = Badge.objects.filter(
-                        interface=interface,
-                        badge_definition=self.next_badge
-                    ).first()
-                    current_badge.save()
+                Badge.objects.create_badge(self, interface)
 
         else:
             super(BadgeDefinition, self).save(*args, **kwargs)
@@ -128,6 +109,38 @@ class PointChange(models.Model):
     time = models.DateTimeField(auto_now_add=True)
 
 
+class BadgeManager(models.Manager):
+    """
+
+    """
+    def create_badge(self, definition, interface):
+        """
+        Creates a new badge from a badge definition and a gamification interface.
+
+        :param definition: BadgeDefinition object
+        :param interface: GamificationInterface object
+        :return: Badge object
+        """
+
+        badge = self.create(
+            interface=interface,
+            name=definition.name,
+            description=definition.description,
+            progression=Progression.objects.create(
+                target=definition.progression_target) if definition.progression_target else None,
+            category=definition.category,
+            points=definition.points,
+            badge_definition=definition
+        )
+        if definition.next_badge:
+            badge.next_badge = self.filter(
+                interface=interface,
+                badge_definition=definition.next_badge
+            ).first()
+            badge.save()
+        return badge
+
+
 class Badge(models.Model):
     """
 
@@ -143,6 +156,9 @@ class Badge(models.Model):
     next_badge = models.ForeignKey('self', null=True)
     category = models.ForeignKey(Category, null=True)
     points = models.BigIntegerField(null=True, blank=True)
+
+    default_objects = models.Manager()
+    objects = BadgeManager()
 
     def increment(self):
         if self.progression:
