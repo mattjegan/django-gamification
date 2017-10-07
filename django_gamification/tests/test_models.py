@@ -166,6 +166,34 @@ class BadgeTest(TestCase):
         self.assertEqual(PointChange.objects.all().count(), 1)
         self.assertEqual(interface.points, 10)
 
+    def test_revoke_acquired_objects(self):
+        interface = GamificationInterface.objects.create()
+        BadgeDefinition.objects.create(
+            name='mybadgedefinition',
+            description='mybadgedescription'
+        )
+        badge = Badge.objects.get(interface=interface)
+        badge.points = 10
+        self.assertEqual(badge.acquired, False)
+        self.assertEqual(PointChange.objects.all().count(), 0)
+        self.assertEqual(Badge.acquired_objects.count(), 0)
+        badge.award()
+        self.assertEqual(badge.acquired, True)
+        self.assertEqual(badge.revoked, False)
+        self.assertEqual(PointChange.objects.all().count(), 1)
+        self.assertEqual(interface.points, 10)
+        badge.force_revoke()
+        self.assertEqual(badge.revoked, True)
+        self.assertEqual(PointChange.objects.all().count(), 2)
+        self.assertEqual(interface.points, 0)
+        self.assertEqual(Badge.objects.all().count(), 1)
+        badge.award()
+        self.assertEqual(badge.acquired, True)
+        self.assertEqual(badge.revoked, False)
+        self.assertEqual(PointChange.objects.all().count(), 3)
+        self.assertEqual(interface.points, 10)
+
+
 
 class UnlockableDefinitionTest(TestCase):
     """Test that  Unlockable Definitions are created correctly."""
@@ -190,4 +218,3 @@ class UnlockableDefinitionTest(TestCase):
 
         for unlockable in Unlockable.objects.filter(unlockable_definition=definition):
             self.assertEqual(unlockable.name, 'myaltereddefinition')
-            
