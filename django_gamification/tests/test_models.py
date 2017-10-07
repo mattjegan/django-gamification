@@ -25,6 +25,51 @@ class GamificationInterfaceTest(TestCase):
         )
         self.assertEqual(interface.points, 100)
 
+    def test_points_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        PointChange.objects.create(
+            amount=100,
+            interface=interface
+        )
+        interface.reset()
+        self.assertEqual(interface.points, 0)
+
+    def test_badges_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        BadgeDefinition.objects.create(
+            name='mybadgedefinition',
+            description='mybadgedescription'
+        )
+        badge = Badge.objects.get(interface=interface)
+        badge.progression = Progression.objects.create(target=1)
+        badge.save()
+        badge.increment()
+        self.assertEqual(badge.progression.progress, 1)
+        self.assertTrue(badge.acquired)
+
+        interface.reset()
+        badge = Badge.objects.get(interface=interface)
+        self.assertEqual(badge.progression.progress, 0)
+        self.assertFalse(badge.acquired)
+
+    def test_unlockable_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        UnlockableDefinition.objects.create(
+            name='myunlockabledefinition',
+            description='myunlockabledescription',
+            points_required=10
+        )
+        unlockable = Unlockable.objects.get(interface=interface)
+        unlockable.acquired = True
+        unlockable.save()
+
+        interface.reset()
+        unlockable = Unlockable.objects.get(interface=interface)
+        self.assertFalse(unlockable.acquired)
+
 
 class BadgeDefinitionTest(TestCase):
     """Tests that check the badge definitions are correctly created, additional inerfaces can be added after some badgedefinitions 
