@@ -42,15 +42,13 @@ Features and Examples
 Concepts
 ~~~~~~~~
 
-Django Gamification requires the understanding of a few core concepts. -
-**BadgeDefinitions:** A template used to create new Badges and update
-existing Badges. - **Badge:** An object that represents some achievable
-objective in the system that can award points and track its own
-progression. - **UnlockableDefinition:** A template used to create new
-Unlockables and update existing Unlockables. - **Unlockable:** An object
-that is achieved by some accumulation of points. - **Category:** An
-object used to label other objects like Badges via their
-BadgeDefinition.
+Django Gamification requires the understanding of a few core concepts.
+
+- **BadgeDefinitions:** A template used to create new Badges and update existing Badges.
+- **Badge:** An object that represents some achievable objective in the system that can award points and track its own progression.
+- **UnlockableDefinition:** A template used to create new Unlockables and update existing Unlockables.
+- **Unlockable:** An object that is achieved by some accumulation of points.
+- **Category:** An object used to label other objects like Badges via their BadgeDefinition.
 
 Interfaces
 ~~~~~~~~~~
