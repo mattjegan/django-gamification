@@ -6,13 +6,13 @@ from django_gamification.signals import check_unlockables
 
 
 class CheckUnlockablesTest(TestCase):
-
+    """ Tests that the interface being used has unlocked no Unlockables""" 
     def test_check_unlockables_no_instance(self):
         self.assertIsNone(check_unlockables(PointChange, instance=None))
 
-
+        
 class CheckGamificationInterfaceCreateTest(TestCase):
-
+    """ Tests that new badges are created when a new interface is created """
     def test_badges_after_interface_create(self):
         BadgeDefinition.objects.create(
             name='mybadgedefinition',

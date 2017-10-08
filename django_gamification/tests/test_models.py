@@ -6,12 +6,17 @@ from django_gamification.models import GamificationInterface, PointChange, Badge
 
 
 class GamificationInterfaceTest(TestCase):
-
+    """Tests for Gamification Interface"""
+    
     def test_points_default_to_zero(self):
+        """Tests that when an interface is created, the test-points are intialised to zero"""
+        
         interface = GamificationInterface.objects.create()
         self.assertEqual(interface.points, 0)
 
     def test_points(self):
+        """Tests that the change in points reflect in the Gamification Interface"""
+        
         interface = GamificationInterface.objects.create()
 
         PointChange.objects.create(
@@ -20,8 +25,58 @@ class GamificationInterfaceTest(TestCase):
         )
         self.assertEqual(interface.points, 100)
 
+    def test_points_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        PointChange.objects.create(
+            amount=100,
+            interface=interface
+        )
+        interface.reset()
+        self.assertEqual(interface.points, 0)
+
+    def test_badges_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        BadgeDefinition.objects.create(
+            name='mybadgedefinition',
+            description='mybadgedescription'
+        )
+        badge = Badge.objects.get(interface=interface)
+        badge.progression = Progression.objects.create(target=1)
+        badge.save()
+        badge.increment()
+        self.assertEqual(badge.progression.progress, 1)
+        self.assertTrue(badge.acquired)
+
+        interface.reset()
+        badge = Badge.objects.get(interface=interface)
+        self.assertEqual(badge.progression.progress, 0)
+        self.assertFalse(badge.acquired)
+
+    def test_unlockable_after_reset(self):
+        interface = GamificationInterface.objects.create()
+
+        UnlockableDefinition.objects.create(
+            name='myunlockabledefinition',
+            description='myunlockabledescription',
+            points_required=10
+        )
+        unlockable = Unlockable.objects.get(interface=interface)
+        unlockable.acquired = True
+        unlockable.save()
+
+        interface.reset()
+        unlockable = Unlockable.objects.get(interface=interface)
+        self.assertFalse(unlockable.acquired)
+
 
 class BadgeDefinitionTest(TestCase):
+    """Tests that check the badge definitions are correctly created, additional inerfaces can be added after some badgedefinitions 
+      are already in existance, next_badge created is properly linked to The new badge definitions and all changes to the old 
+      badgedefinitions are saved.
+    """
+        
     longMessage = True
 
     def runTest(self):
@@ -122,8 +177,11 @@ class BadgeDefinitionTest(TestCase):
 
 
 class BadgeTest(TestCase):
-
+    """Tests that check Badge progression and awards"""
+    
     def test_increment(self):
+        """Tests that badge progression(increment) works and bagde can be acquired"""
+        
         interface = GamificationInterface.objects.create()
         BadgeDefinition.objects.create(
             name='mybadgedefinition',
@@ -137,6 +195,8 @@ class BadgeTest(TestCase):
         self.assertEqual(badge.acquired, True)
 
     def test_award(self):
+        """Tests that before badge is awarded, the badge is not acquired and PointChange model is not updated. And after the
+        badge is awarded the badge is acquired and PointChange model is updated."""
         interface = GamificationInterface.objects.create()
         BadgeDefinition.objects.create(
             name='mybadgedefinition',
@@ -151,9 +211,37 @@ class BadgeTest(TestCase):
         self.assertEqual(PointChange.objects.all().count(), 1)
         self.assertEqual(interface.points, 10)
 
+    def test_revoke_acquired_objects(self):
+        interface = GamificationInterface.objects.create()
+        BadgeDefinition.objects.create(
+            name='mybadgedefinition',
+            description='mybadgedescription'
+        )
+        badge = Badge.objects.get(interface=interface)
+        badge.points = 10
+        self.assertEqual(badge.acquired, False)
+        self.assertEqual(PointChange.objects.all().count(), 0)
+        self.assertEqual(Badge.acquired_objects.count(), 0)
+        badge.award()
+        self.assertEqual(badge.acquired, True)
+        self.assertEqual(badge.revoked, False)
+        self.assertEqual(PointChange.objects.all().count(), 1)
+        self.assertEqual(interface.points, 10)
+        badge.force_revoke()
+        self.assertEqual(badge.revoked, True)
+        self.assertEqual(PointChange.objects.all().count(), 2)
+        self.assertEqual(interface.points, 0)
+        self.assertEqual(Badge.objects.all().count(), 1)
+        badge.award()
+        self.assertEqual(badge.acquired, True)
+        self.assertEqual(badge.revoked, False)
+        self.assertEqual(PointChange.objects.all().count(), 3)
+        self.assertEqual(interface.points, 10)
+
+
 
 class UnlockableDefinitionTest(TestCase):
-
+    """Test that  Unlockable Definitions are created correctly."""
     def test_save(self):
 
         for i in range(2):

@@ -7,13 +7,36 @@ class GamificationInterface(models.Model):
     """
     A user should have a foreign key to a GamificationInterface to keep track of all gamification
     related objects.
-    
+
     game_tracking = ForeignKey(GamificationInterface)
     """
 
     @property
     def points(self):
         return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))['amount__sum'] or 0
+
+    def reset(self):
+        """
+        Reset player's points, badges and unlockable items.
+
+        :param:
+        :return:
+        """
+
+        # Delete all points
+        self.pointchange_set.all().delete()
+
+        # All unlockable objects become not acquired
+        self.unlockable_set.all().update(acquired=False)
+
+        # All badges become not acquired and their progress is set to 0
+        for badge in self.badge_set.all():
+            progression = badge.progression
+            if progression is not None:
+                progression.progress = 0
+                progression.save()
+            badge.acquired = False
+            badge.save()
 
 
 class Category(models.Model):
@@ -43,9 +66,9 @@ class BadgeDefinition(models.Model):
         This may be simplified in the future if users opt to use Badge.objects.filter(badge_definition__name=...)
         whereas we wanted it to be simpler syntax as the current Badge.objects.filter(name=...)
 
-        :param args: 
-        :param kwargs: 
-        :return: 
+        :param args:
+        :param kwargs:
+        :return:
         """
 
         # If this is a new BadgeDefinition
@@ -87,7 +110,7 @@ class BadgeDefinition(models.Model):
 
 class Progression(models.Model):
     """
-    
+
     """
     progress = models.IntegerField(default=0, null=False, blank=False)
     target = models.IntegerField(null=False, blank=False)
@@ -107,6 +130,13 @@ class PointChange(models.Model):
     amount = models.BigIntegerField(null=False, blank=False)
     interface = models.ForeignKey(GamificationInterface)
     time = models.DateTimeField(auto_now_add=True)
+
+class AcquiredBadgesManager(models.Manager):
+    """
+
+    """
+    def get_queryset(self):
+        return super(AcquiredBadgesManager, self).get_queryset().filter(acquired=True, revoked=False)
 
 
 class BadgeManager(models.Manager):
@@ -147,7 +177,11 @@ class Badge(models.Model):
     """
     badge_definition = models.ForeignKey(BadgeDefinition)
     acquired = models.BooleanField(default=False)
+    revoked = models.BooleanField(default=False)
     interface = models.ForeignKey(GamificationInterface)
+
+    objects = models.Manager()
+    acquired_objects = AcquiredBadgesManager()
 
     # These should be populated by the BadgeDefinition that generates this
     name = models.CharField(max_length=128)
@@ -161,13 +195,21 @@ class Badge(models.Model):
     objects = BadgeManager()
 
     def increment(self):
-        if self.progression:
+        if self.progression and not self.revoked:
             self.progression.increment()
             if self.progression.finished:
                 self.acquired = True
 
     def award(self):
-        if not self.progression or self.progression.finished:
+        if self.revoked:
+            self.revoked = False
+            if self.points is not None:
+                PointChange.objects.create(
+                    amount=self.points,
+                    interface=self.interface
+                )
+
+        elif not self.progression or self.progression.finished:
             self.acquired = True
             if self.points is not None:
                 PointChange.objects.create(
@@ -175,6 +217,14 @@ class Badge(models.Model):
                     interface=self.interface
                 )
 
+    def force_revoke(self):
+        if self.acquired:
+            self.revoked = True
+            if self.points is not None:
+                PointChange.objects.create(
+                    amount=(-self.points),
+                    interface=self.interface
+                )
 
 class UnlockableDefinition(models.Model):
     """
@@ -193,9 +243,9 @@ class UnlockableDefinition(models.Model):
         use Unlockable.objects.filter(unlockable_definition__name=...)
         whereas we wanted it to be simpler syntax as the current Unlockable.objects.filter(name=...)
 
-        :param args: 
-        :param kwargs: 
-        :return: 
+        :param args:
+        :param kwargs:
+        :return:
         """
 
         # If this is a new UnlockableDefinition

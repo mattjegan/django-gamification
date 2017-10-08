@@ -4,6 +4,7 @@ chardet==3.0.4
 coverage==4.4.1
 decorator==4.1.2
 Django==1.11.4
+djangorestframework==3.7.0
 idna==2.6
 ipython-genutils==0.2.0
 jedi==0.10.2
