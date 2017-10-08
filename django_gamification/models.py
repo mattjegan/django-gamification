@@ -131,13 +131,6 @@ class PointChange(models.Model):
     interface = models.ForeignKey(GamificationInterface)
     time = models.DateTimeField(auto_now_add=True)
 
-class AcquiredBadgesManager(models.Manager):
-    """
-
-    """
-    def get_queryset(self):
-        return super(AcquiredBadgesManager, self).get_queryset().filter(acquired=True, revoked=False)
-
 
 class BadgeManager(models.Manager):
     """
@@ -171,6 +164,14 @@ class BadgeManager(models.Manager):
         return badge
 
 
+class AcquiredBadgesManager(BadgeManager):
+    """
+
+    """
+    def get_queryset(self):
+        return super(AcquiredBadgesManager, self).get_queryset().filter(acquired=True, revoked=False)
+
+
 class Badge(models.Model):
     """
 
@@ -179,9 +180,6 @@ class Badge(models.Model):
     acquired = models.BooleanField(default=False)
     revoked = models.BooleanField(default=False)
     interface = models.ForeignKey(GamificationInterface)
-
-    objects = models.Manager()
-    acquired_objects = AcquiredBadgesManager()
 
     # These should be populated by the BadgeDefinition that generates this
     name = models.CharField(max_length=128)
@@ -193,6 +191,7 @@ class Badge(models.Model):
 
     default_objects = models.Manager()
     objects = BadgeManager()
+    acquired_objects = AcquiredBadgesManager()
 
     def increment(self):
         if self.progression and not self.revoked:
@@ -226,6 +225,7 @@ class Badge(models.Model):
                     interface=self.interface
                 )
 
+
 class UnlockableDefinition(models.Model):
     """
 
@@ -254,13 +254,7 @@ class UnlockableDefinition(models.Model):
 
             # Create Unlockables for all GamificationInterfaces
             for interface in GamificationInterface.objects.all():
-                Unlockable.objects.create(
-                    interface=interface,
-                    name=self.name,
-                    description=self.description,
-                    points_required=self.points_required,
-                    unlockable_definition=self
-                )
+                Unlockable.objects.create_unlockable(self, interface)
 
         else:
             super(UnlockableDefinition, self).save(*args, **kwargs)
@@ -271,6 +265,27 @@ class UnlockableDefinition(models.Model):
                 description=self.description,
                 points_required=self.points_required
             )
+
+
+class UnlockableManager(models.Manager):
+    """
+
+    """
+    def create_unlockable(self, definition, interface):
+        """
+        Creates a new unlockable from a definition and a gamification interface.
+
+        :param definition: UnlockableDefinition object
+        :param interface: GamificationInterface object
+        :return: Unlockable object
+        """
+        self.create(
+            interface=interface,
+            name=definition.name,
+            description=definition.description,
+            points_required=definition.points_required,
+            unlockable_definition=definition,
+        )
 
 
 class Unlockable(models.Model):
@@ -285,6 +300,9 @@ class Unlockable(models.Model):
     name = models.CharField(max_length=128)
     points_required = models.BigIntegerField(null=False, blank=False)
     description = models.TextField(null=True, blank=True)
+
+    default_objects = models.Manager()
+    objects = UnlockableManager()
 
 
 import django_gamification.signals

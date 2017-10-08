@@ -1,7 +1,8 @@
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django_gamification.models import PointChange, Unlockable, GamificationInterface, BadgeDefinition, Badge
+from django_gamification.models import PointChange, Unlockable, GamificationInterface, BadgeDefinition, Badge, \
+    UnlockableDefinition
 
 
 @receiver(post_save, sender=PointChange)
@@ -27,7 +28,7 @@ def check_unlockables(sender, instance=None, **kwargs):
 
 
 @receiver(post_save, sender=GamificationInterface)
-def create_badges_from_new_interface(sender, instance, created, **kwargs):
+def create_badges_and_unlockables_from_new_interface(sender, instance, created, **kwargs):
     """
     Creates new badges from all definitions for the new interface.
 
@@ -42,3 +43,6 @@ def create_badges_from_new_interface(sender, instance, created, **kwargs):
 
     for definition in BadgeDefinition.objects.all():
         Badge.objects.create_badge(definition, instance)
+
+    for definition in UnlockableDefinition.objects.all():
+        Unlockable.objects.create_unlockable(definition, instance)

@@ -1,7 +1,8 @@
 
 from django.test import TestCase
 
-from django_gamification.models import PointChange, GamificationInterface, BadgeDefinition, Badge
+from django_gamification.models import PointChange, GamificationInterface, BadgeDefinition, Badge, UnlockableDefinition, \
+    Unlockable
 from django_gamification.signals import check_unlockables
 
 
@@ -31,3 +32,24 @@ class CheckGamificationInterfaceCreateTest(TestCase):
         Badge.objects.all().delete()
         interface.save()
         self.assertEqual(Badge.objects.count(), 0)
+
+    def test_unlockables_after_interface_create(self):
+        UnlockableDefinition.objects.create(
+            name='myunlockabledefinition',
+            description='myunlockabledescription',
+            points_required=10,
+        )
+        self.assertEqual(Unlockable.objects.count(), 0)
+        GamificationInterface.objects.create()
+        self.assertEqual(Unlockable.objects.count(), 1)
+
+    def test_unlockables_after_interface_save(self):
+        interface = GamificationInterface.objects.create()
+        UnlockableDefinition.objects.create(
+            name='myunlockabledefinition',
+            description='myunlockabledescription',
+            points_required=10,
+        )
+        Unlockable.objects.all().delete()
+        interface.save()
+        self.assertEqual(Unlockable.objects.count(), 0)
