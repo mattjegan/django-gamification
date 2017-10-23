@@ -1,22 +1,25 @@
 
 from django.test import TestCase
 
-from django_gamification.models import GamificationInterface, PointChange, BadgeDefinition, Badge, Progression, \
-    UnlockableDefinition, Unlockable, Category
+from django_gamification.models import GamificationInterface, PointChange, \
+    BadgeDefinition, Badge, Progression, UnlockableDefinition, Unlockable, \
+    Category
 
 
 class GamificationInterfaceTest(TestCase):
     """Tests for Gamification Interface"""
-    
+
     def test_points_default_to_zero(self):
-        """Tests that when an interface is created, the test-points are intialised to zero"""
-        
+        """Tests that when an interface is created, the test-points are
+           intialised to zero"""
+
         interface = GamificationInterface.objects.create()
         self.assertEqual(interface.points, 0)
 
     def test_points(self):
-        """Tests that the change in points reflect in the Gamification Interface"""
-        
+        """Tests that the change in points reflect in the Gamification
+           Interface"""
+
         interface = GamificationInterface.objects.create()
 
         PointChange.objects.create(
@@ -72,11 +75,12 @@ class GamificationInterfaceTest(TestCase):
 
 
 class BadgeDefinitionTest(TestCase):
-    """Tests that check the badge definitions are correctly created, additional inerfaces can be added after some badgedefinitions 
-      are already in existance, next_badge created is properly linked to The new badge definitions and all changes to the old 
-      badgedefinitions are saved.
+    """Tests that check the badge definitions are correctly created,
+      additional inerfaces can be added after some badgedefinitions are already
+      in existance, next_badge created is properly linked to The new badge
+      definitions and all changes to the old badgedefinitions are saved.
     """
-        
+
     longMessage = True
 
     def runTest(self):
@@ -92,55 +96,79 @@ class BadgeDefinitionTest(TestCase):
             name='mybadgedefinition1',
             description='mybadgedescription1',
             progression_target=100,
-            category=Category.objects.create(name='category1', description='description1'),
+            category=Category.objects.create(name='category1',
+                                             description='description1'),
             points=50
         )
-        self.assertEqual(Badge.objects.filter(badge_definition=definition1).count(),
+        self.assertEqual(Badge.objects.filter(
+                            badge_definition=definition1).count(),
                          GamificationInterface.objects.all().count(),
                          msg=test_msg_0)
 
-        test_msg_1 = "test: add additional interfaces after some badge definitions already exist"
+        test_msg_1 = "test: add additional interfaces after some badge " + \
+                     "definitions already exist"
         GamificationInterface.objects.create()
 
-        definition2a = BadgeDefinition.objects.create(
+        definition2a = BadgeDefinition.objects.create(  # noqa: F841
             name='mybadgedefinition2a',
             description='mybadgedescription2a',
             progression_target=100,
-            category=Category.objects.create(name='category1', description='description1'),
+            category=Category.objects.create(name='category1',
+                                             description='description1'),
             points=50
         )
         definition2b = BadgeDefinition.objects.create(
             name='mybadgedefinition2b',
             description='mybadgedescription2b',
             progression_target=200,
-            next_badge=BadgeDefinition.objects.filter(name='mybadgedefinition2a').last(),
-            category=Category.objects.filter(name='category1', description='description1').last(),
+            next_badge=BadgeDefinition.objects.filter(
+                                            name='mybadgedefinition2a').last(),
+            category=Category.objects.filter(name='category1',
+                                             description='description1',
+                                             ).last(),
             points=100
         )
 
         # for new badgedefinition
-        self.assertEqual(Badge.objects.filter(badge_definition=definition2b).count(),
+        self.assertEqual(Badge.objects.filter(
+                            badge_definition=definition2b).count(),
                          GamificationInterface.objects.all().count(),
                          msg=test_msg_1)
 
         # for old badgedefinition
-        # test_msg_2 = test_msg_1 + "this won't work until Issue #12 is handled"
+        # test_msg_2 = test_msg_1 + "this won't work until Issue #12 is " + \
+        #                           "handled"
         # self.assertEqual(Badge.objects.filter(badge_definition=definition1).count(),
         #                  GamificationInterface.objects.all().count(),
         #                  msg=test_msg_2)
 
-        test_msg_3 = "test: check that next_badge is properly linked with a new badgedefinition; badge: {}; {} vs {}"
-        for i, badge in enumerate(Badge.objects.filter(badge_definition=definition2b)):
-            self.assertEqual(badge.name, 'mybadgedefinition2b', msg=test_msg_3.format(i, badge.name, 'mybadgedefinition2b'))
-            self.assertEqual(badge.category.name, 'category1', msg=test_msg_3.format(i, badge.category.name, 'category1'))
-            self.assertEqual(badge.next_badge.name, 'mybadgedefinition2a', msg=test_msg_3.format(i, badge.next_badge.name, 'mybadgedefinition2a'))
+        test_msg_3 = "test: check that next_badge is properly linked with " + \
+                     "a new badgedefinition; badge: {}; {} vs {}"
+        for i, badge in enumerate(Badge.objects.filter(
+                badge_definition=definition2b)):
+            self.assertEqual(
+                badge.name,
+                'mybadgedefinition2b',
+                msg=test_msg_3.format(i, badge.name, 'mybadgedefinition2b'))
+            self.assertEqual(
+                badge.category.name,
+                'category1',
+                msg=test_msg_3.format(i, badge.category.name, 'category1'))
+            self.assertEqual(
+                badge.next_badge.name,
+                'mybadgedefinition2a',
+                msg=test_msg_3.format(i, badge.next_badge.name,
+                                      'mybadgedefinition2a'))
 
-        test_msg_4 = "test: saving changes to old badgedefinition (incl. new next_badge); badge: {}; {} vs {}"
+        test_msg_4 = "test: saving changes to old badgedefinition " + \
+                     "(incl. new next_badge); badge: {}; {} vs {}"
         definition3 = BadgeDefinition.objects.create(
             name='mybadgedefinition3',
             description='mybadgedescription3',
             progression_target=200,
-            category=Category.objects.filter(name='category1', description='description1').last(),
+            category=Category.objects.filter(
+                                            name='category1',
+                                            description='description1').last(),
             points=100
         )
         for badge in Badge.objects.filter(badge_definition=definition1):
@@ -160,14 +188,28 @@ class BadgeDefinitionTest(TestCase):
         definition1.points = 75
         definition1.save()
 
-        for i, badge in enumerate(Badge.objects.filter(badge_definition=definition1)):
-            self.assertEqual(badge.name, 'myaltereddefinition', msg=test_msg_4.format(i, badge.name, 'myaltereddefinition'))
-            self.assertEqual(badge.description, 'myaltereddescription', msg=test_msg_4.format(i, badge.description, 'myaltereddescription'))
-            self.assertEqual(badge.progression.target, 50, msg=test_msg_4.format(i, badge.progression.target, 50))
-            self.assertEqual(badge.category.name, 'category2', msg=test_msg_4.format(i, badge.category.name, 'category2'))
-            self.assertEqual(badge.next_badge.name, 'mybadgedefinition3', msg=test_msg_4.format(i, badge.next_badge.name, 'mybadgedefinition3'))
-            self.assertEqual(type(badge.next_badge), type(badge), msg=test_msg_4.format(i, type(badge.next_badge), type(badge)))
-            self.assertEqual(badge.points, 75, msg=test_msg_4.format(i, badge.points, 75))
+        for i, badge in enumerate(Badge.objects.filter(
+                badge_definition=definition1)):
+            self.assertEqual(badge.name, 'myaltereddefinition',
+                             msg=test_msg_4.format(i, badge.name,
+                                                   'myaltereddefinition'))
+            self.assertEqual(badge.description, 'myaltereddescription',
+                             msg=test_msg_4.format(i, badge.description,
+                                                   'myaltereddescription'))
+            self.assertEqual(badge.progression.target, 50,
+                             msg=test_msg_4.format(i, badge.progression.target,
+                                                   50))
+            self.assertEqual(badge.category.name, 'category2',
+                             msg=test_msg_4.format(i, badge.category.name,
+                                                   'category2'))
+            self.assertEqual(badge.next_badge.name, 'mybadgedefinition3',
+                             msg=test_msg_4.format(i, badge.next_badge.name,
+                                                   'mybadgedefinition3'))
+            self.assertEqual(type(badge.next_badge), type(badge),
+                             msg=test_msg_4.format(i, type(badge.next_badge),
+                                                   type(badge)))
+            self.assertEqual(badge.points, 75,
+                             msg=test_msg_4.format(i, badge.points, 75))
 
         definition1.progression_target = None
         definition1.save()
@@ -178,10 +220,11 @@ class BadgeDefinitionTest(TestCase):
 
 class BadgeTest(TestCase):
     """Tests that check Badge progression and awards"""
-    
+
     def test_increment(self):
-        """Tests that badge progression(increment) works and bagde can be acquired"""
-        
+        """Tests that badge progression(increment) works and bagde can be
+           acquired"""
+
         interface = GamificationInterface.objects.create()
         BadgeDefinition.objects.create(
             name='mybadgedefinition',
@@ -195,8 +238,9 @@ class BadgeTest(TestCase):
         self.assertEqual(badge.acquired, True)
 
     def test_award(self):
-        """Tests that before badge is awarded, the badge is not acquired and PointChange model is not updated. And after the
-        badge is awarded the badge is acquired and PointChange model is updated."""
+        """Tests that before badge is awarded, the badge is not acquired and
+          PointChange model is not updated. And after the badge is awarded the
+          badge is acquired and PointChange model is updated."""
         interface = GamificationInterface.objects.create()
         BadgeDefinition.objects.create(
             name='mybadgedefinition',
@@ -239,7 +283,6 @@ class BadgeTest(TestCase):
         self.assertEqual(interface.points, 10)
 
 
-
 class UnlockableDefinitionTest(TestCase):
     """Test that  Unlockable Definitions are created correctly."""
     def test_save(self):
@@ -252,14 +295,17 @@ class UnlockableDefinitionTest(TestCase):
             description='myunlockabledescription',
             points_required=10
         )
-        self.assertEqual(Unlockable.objects.filter(unlockable_definition=definition).count(),
+        self.assertEqual(Unlockable.objects.filter(
+                            unlockable_definition=definition).count(),
                          GamificationInterface.objects.all().count())
 
-        for unlockable in Unlockable.objects.filter(unlockable_definition=definition):
+        for unlockable in Unlockable.objects.filter(
+                unlockable_definition=definition):
             self.assertEqual(unlockable.name, 'myunlockabledefinition')
 
         definition.name = 'myaltereddefinition'
         definition.save()
 
-        for unlockable in Unlockable.objects.filter(unlockable_definition=definition):
+        for unlockable in Unlockable.objects.filter(
+                unlockable_definition=definition):
             self.assertEqual(unlockable.name, 'myaltereddefinition')

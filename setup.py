@@ -8,7 +8,7 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import find_packages, setup, Command
+from setuptools import setup, Command
 
 # Package meta-data.
 NAME = 'django_gamification'
@@ -50,10 +50,12 @@ class PublishCommand(Command):
             pass
 
         self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        os.system('{0} setup.py sdist bdist_wheel --universal'
+                  .format(sys.executable))
 
         self.status('Uploading the package to PyPi via Twine…')
-        os.system('twine upload --repository-url https://upload.pypi.org/legacy/ dist/*')
+        os.system('twine upload --repository-url ' +
+                  'https://upload.pypi.org/legacy/ dist/*')
 
         sys.exit()
 

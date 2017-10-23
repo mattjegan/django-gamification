@@ -1,19 +1,19 @@
 from django.db import models
 from django.db.models import Sum
-from django.utils.datetime_safe import datetime
 
 
 class GamificationInterface(models.Model):
     """
-    A user should have a foreign key to a GamificationInterface to keep track of all gamification
-    related objects.
+    A user should have a foreign key to a GamificationInterface to keep track
+    of all gamification related objects.
 
     game_tracking = ForeignKey(GamificationInterface)
     """
 
     @property
     def points(self):
-        return PointChange.objects.filter(interface=self).aggregate(Sum('amount'))['amount__sum'] or 0
+        return PointChange.objects.filter(interface=self).aggregate(
+                                            Sum('amount'))['amount__sum'] or 0
 
     def reset(self):
         """
@@ -60,11 +60,13 @@ class BadgeDefinition(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        We made this method expensive as it is likely to be used very rarely (creation of new types of Badges).
-        By doing so we save having to do expensive joins for filters that look at the badge name or definition.
+        We made this method expensive as it is likely to be used very rarely
+        (creation of new types of Badges). By doing so we save having to do
+        expensive joins for filters that look at the badge name or definition.
 
-        This may be simplified in the future if users opt to use Badge.objects.filter(badge_definition__name=...)
-        whereas we wanted it to be simpler syntax as the current Badge.objects.filter(name=...)
+        This may be simplified in the future if users opt to use
+        Badge.objects.filter(badge_definition__name=...) whereas we wanted it
+        to be simpler syntax as the current Badge.objects.filter(name=...)
 
         :param args:
         :param kwargs:
@@ -83,8 +85,8 @@ class BadgeDefinition(models.Model):
             super(BadgeDefinition, self).save(*args, **kwargs)
 
             # Update all Badges that use this definition
-            # unfortunately we need to loop rather than using .update because we need to update all the
-            # Progression objects as well
+            # unfortunately we need to loop rather than using .update because
+            # we need to update all the Progression objects as well
             for badge in Badge.objects.filter(badge_definition=self):
                 badge.name = self.name
                 badge.description = self.description
@@ -138,7 +140,8 @@ class BadgeManager(models.Manager):
     """
     def create_badge(self, definition, interface):
         """
-        Creates a new badge from a badge definition and a gamification interface.
+        Creates a new badge from a badge definition and a gamification
+        interface.
 
         :param definition: BadgeDefinition object
         :param interface: GamificationInterface object
@@ -150,7 +153,8 @@ class BadgeManager(models.Manager):
             name=definition.name,
             description=definition.description,
             progression=Progression.objects.create(
-                target=definition.progression_target) if definition.progression_target else None,
+                target=definition.progression_target)
+            if definition.progression_target else None,
             category=definition.category,
             points=definition.points,
             badge_definition=definition
@@ -169,7 +173,8 @@ class AcquiredBadgesManager(BadgeManager):
 
     """
     def get_queryset(self):
-        return super(AcquiredBadgesManager, self).get_queryset().filter(acquired=True, revoked=False)
+        return super(AcquiredBadgesManager, self).get_queryset().filter(
+                                                acquired=True, revoked=False)
 
 
 class Badge(models.Model):
@@ -236,12 +241,15 @@ class UnlockableDefinition(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        We made this method expensive as it is likely to be used very rarely (creation of new types of Unlockables).
-        By doing so we save having to do expensive joins for filters that look at the unlockable name or definition.
+        We made this method expensive as it is likely to be used very rarely
+        (creation of new types of Unlockables). By doing so we save having to
+        do expensive joins for filters that look at the unlockable name or
+        definition.
 
         This may be simplified in the future if users opt to
         use Unlockable.objects.filter(unlockable_definition__name=...)
-        whereas we wanted it to be simpler syntax as the current Unlockable.objects.filter(name=...)
+        whereas we wanted it to be simpler syntax as the current
+        Unlockable.objects.filter(name=...)
 
         :param args:
         :param kwargs:
@@ -273,7 +281,8 @@ class UnlockableManager(models.Manager):
     """
     def create_unlockable(self, definition, interface):
         """
-        Creates a new unlockable from a definition and a gamification interface.
+        Creates a new unlockable from a definition and a gamification
+        interface.
 
         :param definition: UnlockableDefinition object
         :param interface: GamificationInterface object
@@ -303,6 +312,3 @@ class Unlockable(models.Model):
 
     default_objects = models.Manager()
     objects = UnlockableManager()
-
-
-import django_gamification.signals
