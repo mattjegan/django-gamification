@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from django_gamification.models import GamificationInterface, Category, BadgeDefinition, Progression,\
-    PointChange, Badge, UnlockableDefinition, Unlockable
+from django_gamification.models import GamificationInterface, Category, \
+    BadgeDefinition, Progression, PointChange, Badge, UnlockableDefinition, \
+    Unlockable
 
 
 class GamificationInterfaceSerializer(serializers.ModelSerializer):
