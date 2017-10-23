@@ -15,5 +15,6 @@ install:
 - pip install Django==$DJANGO_VERSION
 script:
 - coverage run manage.py test
+- flake8
 after_success:
 - coverage report
