@@ -65,7 +65,7 @@ Creating an interface
 
     class YourUserModel(models.User):
         # Your user fields here
-        
+
         # The gamification interface
         interface = models.ForeignKey(GamificationInterface)
 
@@ -150,6 +150,47 @@ an update.
 Once an issue is complete, open a pull request so that your contribution
 can be reviewed. A TravisCI build will run and be attached to your pull
 request. Your code must pass these checks.
+
+Get Started!
+~~~~~~~~~~~~
+
+Ready to contribute? Here's how to set up `django-gamification` for local
+development.
+
+1. Fork the `django-gamification` repo on GitHub.
+2. Clone your fork locally::
+
+    $ git clone git@github.com:your_name_here/django-gamification.git
+
+3. Install your local copy into a virtualenv. Assuming you have
+   virtualenvwrapper installed, this is how you set up your fork for local development::
+
+    $ mkvirtualenv django-gamification
+    $ cd django-gamification/
+    $ python setup.py develop
+
+4. Create a branch for local development::
+
+    $ git checkout -b name-of-your-bugfix-or-feature
+
+   Now you can make your changes locally.
+
+5. When you're done making changes, check that your changes pass flake8 and the
+   tests, including testing other Python versions with tox::
+
+        $ py.test
+        $ tox
+
+   To get flake8 and tox, just pip install them into your virtualenv.
+
+6. Commit your changes and push your branch to GitHub::
+
+    $ git add .
+    $ git commit -m "Your detailed description of your changes."
+    $ git push origin name-of-your-bugfix-or-feature
+
+7. Submit a pull request through the GitHub website.
+
 
 Helping others
 ~~~~~~~~~~~~~~
