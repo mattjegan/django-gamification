@@ -63,7 +63,7 @@ Creating an interface
     from django.db import models
     from django_gamification.models import GamificationInterface
 
-    class YourUserModel(models.User):
+    class YourUserModel(User):
         # Your user fields here
 
         # The gamification interface
