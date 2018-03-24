@@ -12,3 +12,4 @@ htmlcov
 .coverage
 .tox
 Pipfile.lock
+.pytest_cache/

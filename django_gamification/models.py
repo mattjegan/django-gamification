@@ -54,8 +54,8 @@ class BadgeDefinition(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
     progression_target = models.IntegerField(null=True, blank=True)
-    next_badge = models.ForeignKey('self', null=True)
-    category = models.ForeignKey(Category, null=True)
+    next_badge = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)
     points = models.BigIntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -130,7 +130,7 @@ class PointChange(models.Model):
 
     """
     amount = models.BigIntegerField(null=False, blank=False)
-    interface = models.ForeignKey(GamificationInterface)
+    interface = models.ForeignKey(GamificationInterface, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now_add=True)
 
 
@@ -181,17 +181,17 @@ class Badge(models.Model):
     """
 
     """
-    badge_definition = models.ForeignKey(BadgeDefinition)
+    badge_definition = models.ForeignKey(BadgeDefinition, on_delete=models.CASCADE)
     acquired = models.BooleanField(default=False)
     revoked = models.BooleanField(default=False)
-    interface = models.ForeignKey(GamificationInterface)
+    interface = models.ForeignKey(GamificationInterface, on_delete=models.CASCADE)
 
     # These should be populated by the BadgeDefinition that generates this
     name = models.CharField(max_length=128)
     description = models.TextField(null=True, blank=True)
-    progression = models.ForeignKey(Progression, null=True)
-    next_badge = models.ForeignKey('self', null=True)
-    category = models.ForeignKey(Category, null=True)
+    progression = models.ForeignKey(Progression, null=True, on_delete=models.CASCADE)
+    next_badge = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)
     points = models.BigIntegerField(null=True, blank=True)
 
     default_objects = models.Manager()
@@ -301,9 +301,9 @@ class Unlockable(models.Model):
     """
 
     """
-    unlockable_definition = models.ForeignKey(UnlockableDefinition)
+    unlockable_definition = models.ForeignKey(UnlockableDefinition, on_delete=models.CASCADE)
     acquired = models.BooleanField(default=False)
-    interface = models.ForeignKey(GamificationInterface)
+    interface = models.ForeignKey(GamificationInterface, on_delete=models.CASCADE)
 
     # These should be populated by the UnlockableDefinition that generates this
     name = models.CharField(max_length=128)
