@@ -10,6 +10,10 @@ features in your application. These include a centralised interface for
 keeping track of all gamification related objects including badges,
 points, and unlockables.
 
+Example App
+-----------
+An example app can be found `here <https://github.com/mattjegan/django-gamification-example-app>`__.
+
 Installation
 ------------
 
