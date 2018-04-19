@@ -1,7 +1,7 @@
 Django Gamification
 ===================
 
-|PyPI version| |Build Status|
+|PyPI version| |Build Status| |Downloads|
 
 Django Gamification aims to fill the gamification sized hole in the
 Django package ecosystem. In the current state, Django Gamification
@@ -207,3 +207,5 @@ familiar open source environment.
    :target: https://badge.fury.io/py/django-gamification
 .. |Build Status| image:: https://travis-ci.org/mattjegan/django-gamification.svg?branch=master
    :target: https://travis-ci.org/mattjegan/django-gamification
+.. |Downloads| image:: http://pepy.tech/badge/django-gamification
+   :target: http://pepy.tech/count/django-gamification
