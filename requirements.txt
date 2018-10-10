@@ -2,7 +2,7 @@ appnope==0.1.0
 certifi==2017.7.27.1
 chardet==3.0.4
 decorator==4.1.2
-Django==1.11.4
+Django==1.11.15
 djangorestframework==3.7.0
 flake8==3.4.1
 idna==2.6
