@@ -43,3 +43,8 @@ wcwidth = "*"
 
 [dev-packages]
 
+
+
+[scripts]
+
+test = "coverage run ./manage.py test"
