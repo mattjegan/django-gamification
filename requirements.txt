@@ -2,7 +2,7 @@ appnope==0.1.0
 certifi==2017.7.27.1
 chardet==3.0.4
 decorator==4.1.2
-Django==1.11.15
+Django>=1.11.18
 djangorestframework==3.7.0
 flake8==3.4.1
 idna==2.6
@@ -23,11 +23,11 @@ pytest-django==3.1.2
 pytest==3.2.3
 pytz==2017.2
 requests-toolbelt==0.8.0
-requests==2.18.4
+requests>=2.20.0
 simplegeneric==0.8.1
 six==1.10.0
 tqdm==4.15.0
 traitlets==4.3.2
 twine==1.9.1
-urllib3==1.22
+urllib3>=1.23
 wcwidth==0.1.7
