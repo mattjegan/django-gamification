@@ -117,12 +117,12 @@ class BadgeDefinition(models.Model):
         badge = None
         # There should only be one. Otherwise something horrible has happened.
         # We can handle not having one, where we just need to create one.
-        if len(badges) is 1:
+        if len(badges) == 1:
             badge = badges[0]
             # Ignore previously-acquired badges.
             if badge.acquired:
                 return
-        elif len(badges) is 0:
+        elif len(badges) == 0:
             badge = Badge.objects.create_badge(self, interface)
         else:
             raise "Expected one badge per definition but found two."
