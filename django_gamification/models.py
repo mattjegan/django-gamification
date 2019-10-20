@@ -109,6 +109,27 @@ class BadgeDefinition(models.Model):
                 badge.points = self.points
                 badge.save()
 
+    def award(self, interface):
+        """
+        Awards this badge to a user.
+        """
+        badges = interface.badge_set.filter(badge_definition=self)
+        badge = None
+        # There should only be one. Otherwise something horrible has happened.
+        # We can handle not having one, where we just need to create one.
+        if len(badges) is 1:
+            badge = badges[0]
+            # Ignore previously-acquired badges.
+            if badge.acquired:
+                return
+        elif len(badges) is 0:
+            badge = Badge.objects.create_badge(self, interface)
+        else:
+            raise "Expected one badge per definition but found two."
+            return
+        badge.award()
+        badge.save()
+
 
 class Progression(models.Model):
     """
