@@ -114,19 +114,14 @@ class BadgeDefinition(models.Model):
         Awards this badge to a user.
         """
         badges = interface.badge_set.filter(badge_definition=self)
-        badge = None
         # There should only be one. Otherwise something horrible has happened.
         # We can handle not having one, where we just need to create one.
-        if len(badges) == 1:
-            badge = badges[0]
-            # Ignore previously-acquired badges.
+        if badges.exists():
+            badge = badges.first()
             if badge.acquired:
                 return
-        elif len(badges) == 0:
-            badge = Badge.objects.create_badge(self, interface)
         else:
-            raise "Expected one badge per definition but found two."
-            return
+            badge = Badge.objects.create_badge(self, interface)
         badge.award()
         badge.save()
 
