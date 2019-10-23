@@ -219,6 +219,9 @@ class Badge(models.Model):
     objects = BadgeManager()
     acquired_objects = AcquiredBadgesManager()
 
+    class Meta:
+        unique_together = ('interface', 'badge_definition')
+
     def increment(self):
         if self.progression and not self.revoked:
             self.progression.increment()
