@@ -114,8 +114,6 @@ class BadgeDefinition(models.Model):
         Awards this badge to a user.
         """
         badges = interface.badge_set.filter(badge_definition=self)
-        # There should only be one. Otherwise something horrible has happened.
-        # We can handle not having one, where we just need to create one.
         if badges.exists():
             badge = badges.first()
             if badge.acquired:
