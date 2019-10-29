@@ -46,6 +46,9 @@ class Category(models.Model):
     name = models.CharField(max_length=128, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class BadgeDefinition(models.Model):
     """
@@ -57,6 +60,9 @@ class BadgeDefinition(models.Model):
     next_badge = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)
     points = models.BigIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
         """
